@@ -115,13 +115,13 @@ image_logo = canvas.create_image(
     image=image_image_logo
 )
 
-canvas.create_rectangle(
-    48.0,
-    85.0,
-    325.0,
-    407.0,
-    fill="#00AAB1",
-    outline="")
+image_rectangle = PhotoImage(
+    file=relative_to_assets("rectangle.png"))
+rectangle = canvas.create_image(
+    186.0,
+    246.0,
+    image=image_rectangle
+)
 
 #Output button
 button_image_output = PhotoImage(
@@ -173,10 +173,11 @@ button_dropit = Button(
 )
 button_dropit.place(
     x=64.0,
-    y=280.0,
+    y=340.0,
     width=174.0,
-    height=36.0
+    height=34.0
 )
+
 
 #Create the webhook entry field
 webhook_entry = Entry(window)
@@ -184,9 +185,9 @@ webhook_entry.pack()
 populate()
 webhook_entry.place(
     x=64.0,
-    y=340.0,
+    y=280.0,
     width=174.0,
-    height=34.0
+    height=36.0
 )
 
 #Create the Input button
@@ -208,12 +209,22 @@ button_input.place(
 
 #Text for Discord Webhook
 canvas.create_text(
-    99.0,
-    382.0,
+    104.0,
+    321.0,
     anchor="nw",
     text="Discord Webhook",
-    fill="#FFFFFF",
-    font=("Inter", 12 * -1)
+    fill="#010101",
+    font=("Inter Bold", 12 * -1)
+)
+
+#Text for Select Encoder
+canvas.create_text(
+    104.0,
+    260.0,
+    anchor="nw",
+    text="Select Encoder",
+    fill="#010101",
+    font=("Inter Bold", 12 * -1)
 )
 
 #Create the Update button
@@ -228,7 +239,7 @@ button_update = Button(
 )
 button_update.place(
     x=248.0,
-    y=343.0,
+    y=283.0,
     width=66.0,
     height=30.0
 )
