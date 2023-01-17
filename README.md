@@ -19,7 +19,7 @@ With Game Drop, gamers can easily capture and share their most exciting moments 
 FFMPEG<br/>
 <br/>
 <p>###How To Use###
-<p>Run "Game Drop.exe" as an Administrator. This ensures that the PowerShell script can run properly.
+<p>Run "Game Drop.exe" as an Administrator. This ensures that the Discord Webhook can write back to the installation folder.
 <p>Input = Select the video you want to share.
 <p>Output = Where would you like the encoded video to be saved?
 <p>Select Encoder = Choose which graphics card you have or use CPU if you don't have one.
