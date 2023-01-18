@@ -34,11 +34,10 @@ This is my first real hobby project and it's been great learning to code along t
 ## Prerequisites - Should the user not have these; I've included scripts that will automatically install the latest PowerShell 7 and FFMPEG versions as well as set the Environmental Variables for FFMPEG.
 * PowerShell 7 with loading scripts enabled.
 * FFMPEG 3 or higher.
-* Local admin rights to update a .txt file in the installation directory.
 
 
 ## How To Use
-* **Run** "Game Drop.exe" as an Administrator. This ensures that the Discord Webhook can write back to the installation folder.
+* **Run** "Game Drop.exe"
 * **Input** = Select the video you want to share.
 * **Output** = Where would you like the encoded video to be saved?
 * **Select Encoder** = Choose which graphics card you have or use CPU if you don't have one.
