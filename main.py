@@ -10,7 +10,6 @@ from tkinter import *
 from tkinter import filedialog, messagebox
 from discord_webhook import DiscordWebhook
 import os
-#import time
 
 
 
