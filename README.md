@@ -24,16 +24,14 @@ This is my first real hobby project and it's been great learning to code along t
 * Near instant conversions (with NVIDIA or AMD GPU)
 
 ## How it works
-* Python is used mostly for the User Interface with Tkinter.
-* Users will select a video they want to share and an output location to store the converted video.
+* Users will select a video they want to share and select an output location to store the converted video.
 * The user will then select an encoder being their graphics card of processor.
 * If the user would like to share directly to a Discord channel they will need to specify a webhook that is linked to that channel. See: [Creating a Discord Webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) for more details.
-* A PowerShell script is then called using these parameters to run FFMPEG to take the last 30 seconds of the video and lower the bitrate to make it under 8MB in size.
-* A PowerShell module called "[PSDsHook](https://github.com/gngrninja/PSDsHook)" allows the program to take the converted video and send it through the Discord webhook directly to the Discord channel so users can instantly view the video.
+* A call is made to FFMPEG to take the last 30 seconds of the video and lower the bitrate to make the file size under 8MB in size.
+* The new file is then sent through a Discord webhook directly to the Discord channel so users can instantly view the video.
 
-## Prerequisites - Should the user not have these; I've included scripts that will automatically install the latest PowerShell 7 and FFMPEG versions as well as set the Environmental Variables for FFMPEG.
-* PowerShell 7 with loading scripts enabled.
-* FFMPEG 3 or higher.
+## Prerequisites
+* FFMPEG - Install from ffmpeg.org or use the Installation file located in the installation directory's Bin folder. Ex: "C:\Users\USERNAME\AppData\Local\Game Drop\Bin\FFMPEG Installer.exe"
 
 
 ## How To Use
