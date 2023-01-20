@@ -12,14 +12,10 @@ With Game Drop, gamers can easily capture and share their most exciting moments 
 
 
 ###PREREQUISITES###
-
-###Installers for these can be found through their respective websites or in the installation directory "Game Drop\Bin".###
-PowerShell 7
-FFMPEG
+FFMPEG - Install from ffmpeg.org or use the Installation file located in the installation directory's Bin folder. Ex: "C:\Users\USERNAME\AppData\Local\Game Drop\Bin\FFMPEG Installer.exe"
 
 ###How To Use###
-
-Run "Game Drop.exe" as an Administrator. This ensures that the PowerShell script can run properly.
+Run "Game Drop.exe"
 
 Input = Select the video you want to share.
 

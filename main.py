@@ -7,13 +7,17 @@ from pathlib import Path
 
 #Tkinter requirements
 from tkinter import *
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
+from discord_webhook import DiscordWebhook
+import os
+#import time
+
+
 
 
 #Set the Paths to be used
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"assets\frame0")
-Bin_Path = OUTPUT_PATH / Path(r"Bin\PSDsHook.psm1")
 
 
 #Get the initial path to the assets and images
@@ -42,9 +46,19 @@ def update():
 #Define Variables
 video_input = ""
 video_output = ""
+video_name = ""
 nvidia = "h264_nvenc"
 amd = "h264_amf"
 cpu = "libvpx-vp9"
+
+Complete = "Complete!"
+duration = 2000
+    
+def complete():
+    top = Toplevel()
+    top.title('Complete')
+    Message(top, text=Complete, padx=20, pady=30).pack()
+    top.after(duration, top.destroy)
 
 #Choose video file for input buttton
 def choose_video():
@@ -54,8 +68,16 @@ def choose_video():
 
 def choose_save_location():
     global video_output
+    global video_name
     video_output = filedialog.asksaveasfilename(title = "Save video", filetypes = (("MP4 files", "*.mp4"), ("All files", "*.*")), defaultextension='.mp4')
+    video_name = os.path.basename(video_output)
     print(video_output)
+
+def send_file():
+    webhook = DiscordWebhook(url=content, username="Game Drop")
+    with open(video_output, "rb") as f:
+        webhook.add_file(file=f.read(), filename=video_name)
+    response = webhook.execute()
 
 #Call PowerShell script for FFMPEG conversion
 import subprocess
@@ -67,15 +89,29 @@ def option_selected():
     global value
     value = var.get()
     if value == "NVIDIA":
-        command = ['pwsh.exe', '-File', 'conversion.ps1', video_input, video_output, content, nvidia, Bin_Path ]
-        subprocess.run(command)
+        # Pass 1
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1280:720', '-an', '-b:v', '1693k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
+
+        # Pass 2
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1280:720', '-acodec', 'copy', '-b:v', '1693k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+        send_file()
+        complete()
     elif value == "AMD":
-        command = ['pwsh.exe', '-File', 'conversion.ps1', video_input, video_output, content, amd, Bin_Path]
-        subprocess.run(command)
+        # Pass 1
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1280:720', '-an', '-b:v', '1693k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
+
+        # Pass 2
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1280:720', '-acodec', 'copy', '-b:v', '1693k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+        send_file()
+        complete()
     else:
-        command = ['pwsh.exe', '-File', 'conversion.ps1', video_input, video_output, content, cpu, Bin_Path]
-        subprocess.run(command)
-        
+        # Pass 1
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1280:720', '-an', '-b:v', '1693k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
+
+        # Pass 2
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1280:720', '-acodec', 'copy', '-b:v', '1693k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+        send_file()
+        complete()
 
 window = Tk()
 
