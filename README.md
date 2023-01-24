@@ -14,6 +14,8 @@ In short, it allows you to:
 * Shrinks the video down to under 8MB. Now it's small enough to share with many social media and chat apps.
 * Automatically sends the video to your favorite Discord channel upon conversion. Set it and forget it.
 
+### How To Video
+https://youtu.be/poZYv02dMxg
 ### Newbie Alert
 This is my first real hobby project and it's been great learning to code along the way. I have more updates and ideas to enhance this tool coming soon, but I wanted to get it in the hands of my friends and anyone else interested as soon as possible. While there are plenty of other tools similar to this, I couldn't find any that would directly send the video to Discord when it was done.
 
