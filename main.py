@@ -10,7 +10,21 @@ from tkinter import *
 from tkinter import filedialog, messagebox
 from discord_webhook import DiscordWebhook
 import os
+import subprocess
+import wmi
+import time
+window = Tk()
 
+#create a WMI Object
+wmi_obj = wmi.WMI()
+
+#Query for NVIDIA card
+nvidia_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%NVIDIA%'"
+nvidia_result = wmi_obj.query(nvidia_query)
+
+#Query for AMD card
+amd_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%AMD%'"
+amd_result = wmi_obj.query(amd_query)
 
 
 
@@ -32,15 +46,18 @@ def populate():
         content = webhook_entry.get()
         return content
 
-
-#Save the last entry in the webhook text field to output.txt
+#Save the Discord webhook to the file output.txt
 def update():
     global content
     content = webhook_entry.get()
-    with open("output.txt", "w") as f:
+    with open('output.txt', 'w') as f:
         f.write(content)
-        content = webhook_entry.get()
-        return content
+    label_process['text'] = 'Discord Webhook Updated'
+    label_process.update()
+    time.sleep(2)
+    label_process['text'] = 'Status: Ready'
+    content = webhook_entry.get()
+    return content
 
 #Define Variables
 video_input = ""
@@ -50,14 +67,8 @@ nvidia = "h264_nvenc"
 amd = "h264_amf"
 cpu = "libvpx-vp9"
 
-Complete = "Complete!"
-duration = 2000
     
-def complete():
-    top = Toplevel()
-    top.title('Complete')
-    Message(top, text=Complete, padx=20, pady=30).pack()
-    top.after(duration, top.destroy)
+
 
 #Choose video file for input buttton
 def choose_video():
@@ -65,6 +76,7 @@ def choose_video():
     video_input = filedialog.askopenfilename(title = "Select video", filetypes = (("MP4 files", "*.mp4"),("All files", "*.*")))
     print(video_input)
 
+#Choose where to save the encoded video
 def choose_save_location():
     global video_output
     global video_name
@@ -72,53 +84,87 @@ def choose_save_location():
     video_name = os.path.basename(video_output)
     print(video_output)
 
+#Takes the encoded video file and sends it to Discord using the webhook provided.
 def send_file():
-    webhook = DiscordWebhook(url=content, username="Game Drop")
-    with open(video_output, "rb") as f:
-        webhook.add_file(file=f.read(), filename=video_name)
-    response = webhook.execute()
+    webhook = DiscordWebhook(url=content, username='Game Drop')
+#verify that the file size is smaller than 8MB (Discord limit)
+    file_size = os.path.getsize(video_output)
+    if file_size / 1024 > 8192:
+        messagebox.showerror('Error', 'File size is too large to send')
 
-#Call PowerShell script for FFMPEG conversion
-import subprocess
+    with open(video_output, 'rb') as f:
+        webhook.add_file(file=f.read(), filename=video_name)
+        response = webhook.execute()
+        label_process['text'] = 'Completed'
+        label_process.update()
+
+
+#Call PowerShell script for FFMPEG conversion and update the status label
 def run_ffmpeg():
-    option_selected()
+    label_process['text'] = 'Encoding. Please wait...'
+    label_process.update()
+    button_dropit.config(relief='sunken')
+    if not video_input or not video_output:
+        messagebox.showerror('Error', 'Input and/or output files are not selected')
+        button_dropit.config(relief='flat')
+        label_process['text'] = 'Status: Ready'
+        return
+    else:
+        option_selected()
+        button_dropit.config(relief='flat')
+        label_process['text'] = 'Status: Ready'
 
 #Drop Down Menu actions for Encoder
 def option_selected():
     global value
     value = var.get()
     if value == "NVIDIA":
+        #Check if NVIDIA graphics is detected
+        if not nvidia_result:
+            label_process['text'] = 'NVIDIA GPU not detected'
+            label_process.update()
+            time.sleep(2)
+            return #Stop the script
+        
         # Pass 1
         subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1280:720', '-an', '-b:v', '1693k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
-
         # Pass 2
         subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1280:720', '-acodec', 'copy', '-b:v', '1693k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
         send_file()
-        complete()
+
     elif value == "AMD":
+        #Check if AMD graphics is detected
+        if not amd_result:
+                label_process['text'] = 'AMD GPU not detected'
+                label_process.update()
+                time.sleep(2)
+                return #Stop the script
+
         # Pass 1
         subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1280:720', '-an', '-b:v', '1693k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
-
         # Pass 2
         subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1280:720', '-acodec', 'copy', '-b:v', '1693k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
         send_file()
-        complete()
+
     else:
         # Pass 1
         subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1280:720', '-an', '-b:v', '1693k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
-
         # Pass 2
         subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1280:720', '-acodec', 'copy', '-b:v', '1693k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
         send_file()
-        complete()
 
-window = Tk()
 
-#Set the Title
+
+
+#Set the Title and window position
 window.title("Game Drop")
 icon = PhotoImage(file=relative_to_assets("logo.png"))
 window.iconphoto(False, icon)
-window.geometry("800x600")
+width = 800
+height = 600
+x_offset = (window.winfo_screenwidth() - width) // 2
+y_offset = (window.winfo_screenheight() - height) // 2
+window.geometry(f"{width}x{height}+{x_offset}+{y_offset}")
 window.configure(bg = "#FFFFFF")
 
 #Set the background
@@ -212,6 +258,11 @@ button_dropit.place(
     width=174.0,
     height=34.0
 )
+
+#Create a label with text under drop it button
+global label_process
+label_process = Label(window, text="Status: Ready", fg="#010101", font=("Inter Bold", 12))
+label_process.place(x=100, y=380)
 
 
 #Create the webhook entry field
