@@ -274,6 +274,7 @@ global label_process
 label_process = Label(window, text="Status: Ready", fg="#010101", font=("Inter Bold", 12))
 label_process.place(x=100, y=380)
 
+#Check if FFMPEG is installed
 def check_ffmpeg():
     try:
         subprocess.check_output(['ffmpeg', '-version'])
