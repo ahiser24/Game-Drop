@@ -44,7 +44,7 @@ In Version 1.4, the following changes have been made:
 * The new file is then sent through a Discord webhook directly to the Discord channel so users can instantly view the video.
 
 ## Prerequisites
-* FFMPEG - Install from ffmpeg.org or use the Installation file located in the installation directory's Bin folder. Ex: "C:\Users\USERNAME\AppData\Local\Game Drop\Bin\FFMPEG Installer.exe"
+* FFMPEG - Install from ffmpeg.org or use the Installation file located in the installation directory's Bin folder. Ex: ""%localappdata%\TekRexIT\Game Drop\Bin\FFMPEG Installer.exe"\FFMPEG Installer.exe"
 
 
 ## How To Use
