@@ -31,7 +31,7 @@ In Version 1.4, the following changes have been made:
 
 ## Why Game Drop?
 * Easy to use.
-* No need to upload a video to sketchy websites as it's all run local.
+* No need to upload a video to sketchy websites as it's all run locally.
 * Instantly share to Discord. Avoid "Your files are too powerful" messages.
 * Near instant conversions (with NVIDIA or AMD GPU)
 
