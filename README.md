@@ -21,13 +21,14 @@ This is my first real hobby project and it's been great learning to code along t
 
 ### What's New
 In Version 1.4, the following changes have been made:
-* Added an error message if the file is too large to send. Please report any issues if the file chosen is too large.
+* Added an error message if the file is too large to send.
 * Added an error if AMD or NVIDIA GPUs are not detected when choosing either encoder.
 * Added an error message if FFMPEG is not detected in the system.
 * The application should now launch centered on the screen
 * Added a completed message.
 * Added a message to show the encoding process has started.
 * Removed an error message if a Discord webhook was not set.
+* Please report any issues or concerns in our Discord: https://discord.gg/HXeqYMYqKZ
 
 ## Why Game Drop?
 * Easy to use.
