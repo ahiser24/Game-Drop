@@ -19,6 +19,16 @@ https://youtu.be/poZYv02dMxg
 ### Newbie Alert
 This is my first real hobby project and it's been great learning to code along the way. I have more updates and ideas to enhance this tool coming soon, but I wanted to get it in the hands of my friends and anyone else interested as soon as possible. While there are plenty of other tools similar to this, I couldn't find any that would directly send the video to Discord when it was done.
 
+### What's New
+In Version 1.4, the following changes have been made:
+* Added an error message if the file is too large to send. Please report any issues if the file chosen is too large.
+* Added an error if AMD or NVIDIA GPUs are not detected when choosing either encoder.
+* Added an error message if FFMPEG is not detected in the system.
+* The application should now launch centered on the screen
+* Added a completed message.
+* Added a message to show the encoding process has started.
+* Removed an error message if a Discord webhook was not set.
+
 ## Why Game Drop?
 * Easy to use.
 * No need to upload a video to sketchy websites as it's all run local.
