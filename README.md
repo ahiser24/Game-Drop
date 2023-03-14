@@ -3,8 +3,7 @@
 </p>
 
 ###
-
-![GitHub Downloads](https://img.shields.io/github/downloads/ahiser24/Game-Drop/total?logo=Github)
+![GitHub all releases](https://img.shields.io/github/downloads/ahiser24/game-drop/total?logo=Github)
 
 ## Overview
 Game Drop is a program designed for gamers who want to share their most exciting moments with their friends and community. Many gamers record their gameplay using GeForce ShadowPlay and Radeon Adrenaline. With Game Drop, users can easily cut and share the last 30 seconds of their game recordings without the need for costly Discord Nitro subscriptions or video editing software. Game Drop is perfect for streamers, content creators, and anyone who wants to share their game moments with their friends and community. 
