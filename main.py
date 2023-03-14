@@ -3,6 +3,7 @@
 #with other chat programs that have <8MB size limits.
 
 
+
 from pathlib import Path
 
 #Tkinter requirements
@@ -14,6 +15,7 @@ import subprocess
 import wmi
 import time
 window = Tk()
+
 
 #create a WMI Object
 wmi_obj = wmi.WMI()
@@ -86,6 +88,10 @@ def choose_save_location():
 
 #Takes the encoded video file and sends it to Discord using the webhook provided.
 def send_file():
+    if not content:
+        label_process['text'] = 'Completed'
+        label_process.update()
+        return
     webhook = DiscordWebhook(url=content, username='Game Drop')
 #verify that the file size is smaller than 8MB (Discord limit)
     file_size = os.path.getsize(video_output)
@@ -114,8 +120,12 @@ def run_ffmpeg():
         button_dropit.config(relief='flat')
         label_process['text'] = 'Status: Ready'
 
+
+
+
 #Drop Down Menu actions for Encoder
 def option_selected():
+
     global value
     value = var.get()
     if value == "NVIDIA":
@@ -263,6 +273,18 @@ button_dropit.place(
 global label_process
 label_process = Label(window, text="Status: Ready", fg="#010101", font=("Inter Bold", 12))
 label_process.place(x=100, y=380)
+
+def check_ffmpeg():
+    try:
+        subprocess.check_output(['ffmpeg', '-version'])
+        return True
+    except OSError:
+        return False
+
+if not check_ffmpeg():
+    label_process['text'] = 'FFMPEG not found'
+else:
+    label_process['text'] = 'Status: Ready'
 
 
 #Create the webhook entry field
