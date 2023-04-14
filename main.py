@@ -1,6 +1,6 @@
 #Game Drop is used to quickly share 30 second gaming clips with friends on Discord.
 #As the file also gets saved to the output folder, it can easily be shared
-#with other chat programs that have <8MB size limits.
+#with other chat programs that have <25MB size limits.
 
 
 
@@ -93,9 +93,9 @@ def send_file():
         label_process.update()
         return
     webhook = DiscordWebhook(url=content, username='Game Drop')
-#verify that the file size is smaller than 8MB (Discord limit)
+#verify that the file size is smaller than 25MB (Discord limit)
     file_size = os.path.getsize(video_output)
-    if file_size / 1024 > 8192:
+    if file_size / 1024 > 25600:
         messagebox.showerror('Error', 'File size is too large to send')
 
     with open(video_output, 'rb') as f:
@@ -137,9 +137,9 @@ def option_selected():
             return #Stop the script
         
         # Pass 1
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1280:720', '-an', '-b:v', '1693k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
         # Pass 2
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1280:720', '-acodec', 'copy', '-b:v', '1693k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
         send_file()
 
     elif value == "AMD":
@@ -151,16 +151,16 @@ def option_selected():
                 return #Stop the script
 
         # Pass 1
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1280:720', '-an', '-b:v', '1693k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
         # Pass 2
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1280:720', '-acodec', 'copy', '-b:v', '1693k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
         send_file()
 
     else:
         # Pass 1
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1280:720', '-an', '-b:v', '1693k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
         # Pass 2
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1280:720', '-acodec', 'copy', '-b:v', '1693k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
         send_file()
 
 
