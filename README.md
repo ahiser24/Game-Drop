@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://andrewhiser.com/images/game_drop.png?raw=true" alt="Logo" width="50%" height="50%"/>
+  <img src="https://github.com/ahiser24/Game-Drop/blob/main/assets/frame0/screenshot.png?raw=true" alt="Logo" width="50%" height="50%"/>
 </p>
 
 ###
