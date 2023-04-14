@@ -10,7 +10,7 @@ Game Drop is a program designed for gamers who want to share their most exciting
 
 In short, it allows you to:
 * Cut the last 30 seconds, where the action typically occurs, without needing a video editor. No one wants to see a 5 minute video.
-* Shrinks the video down to under 8MB and saves local copy. Now it's small enough to share with many social media and chat apps.
+* Shrinks the video down to under 25MB and saves local copy.
 * Automatically sends the video to your favorite Discord channel upon conversion. Set it and forget it.
 
 ### How To Video
@@ -20,14 +20,8 @@ https://youtu.be/poZYv02dMxg
 This is my first real hobby project and it's been great learning to code along the way. This started out as a PowerShell program and has evolved into a Python application. I have more updates and ideas to enhance this tool coming soon, but I wanted to get it in the hands of my friends and anyone else interested as soon as possible. While there are plenty of other tools similar to this, I couldn't find any that would directly send the video to Discord when it was done. Feel free to adjust it to your liking.
 
 ### What's New
-In Version 1.4, the following changes have been made:
-* Added an error message if the file is too large to send.
-* Added an error if AMD or NVIDIA GPUs are not detected when choosing either encoder.
-* Added an error message if FFMPEG is not detected in the system.
-* The application should now launch centered on the screen
-* Added a completed message.
-* Added a message to show the encoding process has started.
-* Removed an error message if a Discord webhook was not set.
+In Version 1.5, the following changes have been made:
+* Upgraded the file size and quality of the video to support Discord's new 25MB max file size.
 * Please report any issues or concerns in our Discord: https://discord.gg/HXeqYMYqKZ
 
 ### Upcoming features

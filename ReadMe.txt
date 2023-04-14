@@ -2,7 +2,7 @@
 
 Game Drop is a program designed for gamers who want to share their most exciting moments with their friends and community. Many gamers record their gameplay using GeForce ShadowPlay and Radeon Adrenaline. With Game Drop, users can easily cut and share the last 30 seconds of their game recordings without the need for costly Discord Nitro subscriptions.
 
-Game Drop will automatically take the last 30 seconds of the recording, where the action is, and shrink it down to under 8MB. This means that you don't have to worry about editing your videos or cutting them down to size before sharing them.
+Game Drop will automatically take the last 30 seconds of the recording, where the action is, and shrink it down to under 25MB. This means that you don't have to worry about editing your videos or cutting them down to size before sharing them.
 
 The program is also very user-friendly, with a simple and intuitive interface that makes it easy for anyone to use. Users can easily create a webhook to their preferred Discord channel to share their clips and the program will automatically send the footage to that channel.
 
