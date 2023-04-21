@@ -58,3 +58,6 @@ In Version 1.5, the following changes have been made:
 * **Discord Webhook** = Enter the webhook for the Discord channel you want to send the video to. See: [Creating a Discord Webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) for more details.
 * **Update** = Click this button to register the Discord Webhook.
 * **Drop It** = Encode the video and send it to the Discord channel if entered.
+
+## FAQ
+* If a message says **FFMPeg not found**, please install FFMpeg by following the prerequisites section. A reboot may be required for your system to recognize the FFMPEG installation.
