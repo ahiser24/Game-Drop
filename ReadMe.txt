@@ -14,6 +14,16 @@ With Game Drop, gamers can easily capture and share their most exciting moments 
 ###PREREQUISITES###
 FFMPEG - Install from ffmpeg.org or use the Installation file located in the installation directory's Bin folder. Ex: "C:\Users\USERNAME\AppData\Local\Game Drop\Bin\FFMPEG Installer.exe"
 
+#Linux
+Ubuntu and Debian
+sudo apt-get update
+sudo apt-get install ffmpeg
+
+CentOS and Fedora
+sudo dnf install ffmpeg
+
+Arch Linux and Manjaro
+sudo pacman -Sy ffmpeg
 ###How To Use###
 Run "Game Drop.exe"
 
