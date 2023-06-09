@@ -11,28 +11,68 @@ from tkinter import *
 from tkinter import filedialog, messagebox
 from discord_webhook import DiscordWebhook
 import os
+import platform
+if platform.system() != 'Linux':
+    import wmi
+    #create a WMI Object
+    wmi_obj = wmi.WMI()
 import subprocess
-import wmi
 import time
 window = Tk()
 
 
-#create a WMI Object
-wmi_obj = wmi.WMI()
+#Identify GPU and OS
+def is_nvidia_gpu_present():
+    if platform.system() == "Windows":
+        wmi_obj = wmi.WMI()
+        nvidia_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%NVIDIA%'"
+        nvidia_result = wmi_obj.query(nvidia_query)
+        return len(nvidia_result) > 0
 
-#Query for NVIDIA card
-nvidia_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%NVIDIA%'"
-nvidia_result = wmi_obj.query(nvidia_query)
+    elif platform.system() == "Linux":
+        lspci_output = subprocess.check_output("lspci", shell=True).decode()
+        return "NVIDIA" in lspci_output
 
-#Query for AMD card
-amd_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%AMD%'"
-amd_result = wmi_obj.query(amd_query)
+    return False
+
+def is_amd_gpu_present():
+    if platform.system() == "Windows":
+        wmi_obj = wmi.WMI()
+        amd_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%AMD%'"
+        amd_result = wmi_obj.query(amd_query)
+        return len(amd_result) > 0
+
+    elif platform.system() == "Linux":
+        lspci_output = subprocess.check_output("lspci", shell=True).decode()
+        return "AMD" in lspci_output
+
+    return False
+
+# Call the functions and assign the return values to variables
+nvidia_result = is_nvidia_gpu_present()
+amd_result = is_amd_gpu_present()
+
+# Use the values of nvidia_result and amd_result as needed
+if nvidia_result:
+    print("NVIDIA GPU is present")
+else:
+    print("NVIDIA GPU is not present")
+
+if amd_result:
+    print("AMD GPU is present")
+else:
+    print("AMD GPU is not present")
+
 
 
 
 #Set the Paths to be used
-OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r"assets\frame0")
+if platform.system() == 'Linux':
+    OUTPUT_PATH = Path(__file__).parent
+    ASSETS_PATH = OUTPUT_PATH / Path(r"assets/frame0")
+else:
+    OUTPUT_PATH = Path(__file__).parent
+    ASSETS_PATH = OUTPUT_PATH / Path(r"assets\frame0")
 
 
 #Get the initial path to the assets and images
@@ -125,7 +165,9 @@ def run_ffmpeg():
 
 #Drop Down Menu actions for Encoder
 def option_selected():
-
+    global video_input
+    video_input_escaped = '"' + video_input + '"'
+    video_output_escaped = '"' + video_output + '"'
     global value
     value = var.get()
     if value == "NVIDIA":
@@ -136,10 +178,21 @@ def option_selected():
             time.sleep(2)
             return #Stop the script
         
-        # Pass 1
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
-        # Pass 2
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+        # Command to run using pwsh
+        command_pass1 = [
+            'ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input_escaped ,
+            '-c:v', nvidia, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1',
+            '-2pass', '-1', video_output_escaped
+        ]
+        command_pass2 = [
+            'ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input_escaped ,
+            '-c:v', nvidia, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k',
+            '-pass', '2', '-2pass', '-1', '-y', video_output_escaped
+        ]
+        # Run Pass 1 using pwsh
+        subprocess.run(['pwsh', '-Command', ' '.join(command_pass1)])
+        # Run Pass 2 using pwsh
+        subprocess.run(['pwsh', '-Command', ' '.join(command_pass2)])
         send_file()
 
     elif value == "AMD":
@@ -150,17 +203,39 @@ def option_selected():
                 time.sleep(2)
                 return #Stop the script
 
-        # Pass 1
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
-        # Pass 2
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+        # Command to run using pwsh
+        command_pass1 = [
+            'ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input_escaped ,
+            '-c:v', amd, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1',
+            '-2pass', '-1', video_output_escaped
+        ]
+        command_pass2 = [
+            'ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input_escaped ,
+            '-c:v', amd, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k',
+            '-pass', '2', '-2pass', '-1', '-y', video_output_escaped
+        ]
+        # Run Pass 1 using pwsh
+        subprocess.run(['pwsh', '-Command', ' '.join(command_pass1)])
+        # Run Pass 2 using pwsh
+        subprocess.run(['pwsh', '-Command', ' '.join(command_pass2)])
         send_file()
 
     else:
-        # Pass 1
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
-        # Pass 2
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+        # Command to run using pwsh
+        command_pass1 = [
+            'ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input_escaped ,
+            '-c:v', cpu, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1',
+            '-2pass', '-1', video_output_escaped
+        ]
+        command_pass2 = [
+            'ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input_escaped ,
+            '-c:v', cpu, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k',
+            '-pass', '2', '-2pass', '-1', '-y', video_output_escaped
+        ]
+        # Run Pass 1 using pwsh
+        subprocess.run(['pwsh', '-Command', ' '.join(command_pass1)])
+        # Run Pass 2 using pwsh
+        subprocess.run(['pwsh', '-Command', ' '.join(command_pass2)])
         send_file()
 
 
