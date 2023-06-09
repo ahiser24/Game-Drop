@@ -1,6 +1,7 @@
 #Game Drop is used to quickly share 30 second gaming clips with friends on Discord.
 #As the file also gets saved to the output folder, it can easily be shared
-#with other chat programs that have <8MB size limits.
+#with other chat programs that have <25MB size limits.
+
 
 
 from pathlib import Path
@@ -10,21 +11,58 @@ from tkinter import *
 from tkinter import filedialog, messagebox
 from discord_webhook import DiscordWebhook
 import os
+import platform
 import subprocess
 import wmi
 import time
 window = Tk()
 
+
 #create a WMI Object
 wmi_obj = wmi.WMI()
 
-#Query for NVIDIA card
-nvidia_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%NVIDIA%'"
-nvidia_result = wmi_obj.query(nvidia_query)
+#Identify GPU and OS
+def is_nvidia_gpu_present():
+    if platform.system() == "Windows":
+        wmi_obj = wmi.WMI()
+        nvidia_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%NVIDIA%'"
+        nvidia_result = wmi_obj.query(nvidia_query)
+        return len(nvidia_result) > 0
 
-#Query for AMD card
-amd_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%AMD%'"
-amd_result = wmi_obj.query(amd_query)
+    elif platform.system() == "Linux":
+        lspci_output = subprocess.check_output("lspci", shell=True).decode()
+        return "NVIDIA" in lspci_output
+
+    return False
+
+def is_amd_gpu_present():
+    if platform.system() == "Windows":
+        wmi_obj = wmi.WMI()
+        amd_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%AMD%'"
+        amd_result = wmi_obj.query(amd_query)
+        return len(amd_result) > 0
+
+    elif platform.system() == "Linux":
+        lspci_output = subprocess.check_output("lspci", shell=True).decode()
+        return "AMD" in lspci_output
+
+    return False
+
+# Call the functions and assign the return values to variables
+nvidia_result = is_nvidia_gpu_present()
+amd_result = is_amd_gpu_present()
+
+# Use the values of nvidia_result and amd_result as needed
+if nvidia_result:
+    print("NVIDIA GPU is present")
+else:
+    print("NVIDIA GPU is not present")
+
+if amd_result:
+    print("AMD GPU is present")
+else:
+    print("AMD GPU is not present")
+
 
 
 
@@ -86,10 +124,14 @@ def choose_save_location():
 
 #Takes the encoded video file and sends it to Discord using the webhook provided.
 def send_file():
+    if not content:
+        label_process['text'] = 'Completed'
+        label_process.update()
+        return
     webhook = DiscordWebhook(url=content, username='Game Drop')
-#verify that the file size is smaller than 8MB (Discord limit)
+#verify that the file size is smaller than 25MB (Discord limit)
     file_size = os.path.getsize(video_output)
-    if file_size / 1024 > 8192:
+    if file_size / 1024 > 25600:
         messagebox.showerror('Error', 'File size is too large to send')
 
     with open(video_output, 'rb') as f:
@@ -114,8 +156,12 @@ def run_ffmpeg():
         button_dropit.config(relief='flat')
         label_process['text'] = 'Status: Ready'
 
+
+
+
 #Drop Down Menu actions for Encoder
 def option_selected():
+
     global value
     value = var.get()
     if value == "NVIDIA":
@@ -127,9 +173,9 @@ def option_selected():
             return #Stop the script
         
         # Pass 1
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1280:720', '-an', '-b:v', '1693k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
         # Pass 2
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1280:720', '-acodec', 'copy', '-b:v', '1693k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
         send_file()
 
     elif value == "AMD":
@@ -141,16 +187,16 @@ def option_selected():
                 return #Stop the script
 
         # Pass 1
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1280:720', '-an', '-b:v', '1693k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
         # Pass 2
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1280:720', '-acodec', 'copy', '-b:v', '1693k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', amd, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
         send_file()
 
     else:
         # Pass 1
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1280:720', '-an', '-b:v', '1693k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
         # Pass 2
-        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1280:720', '-acodec', 'copy', '-b:v', '1693k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', cpu, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
         send_file()
 
 
@@ -263,6 +309,19 @@ button_dropit.place(
 global label_process
 label_process = Label(window, text="Status: Ready", fg="#010101", font=("Inter Bold", 12))
 label_process.place(x=100, y=380)
+
+#Check if FFMPEG is installed
+def check_ffmpeg():
+    try:
+        subprocess.check_output(['ffmpeg', '-version'])
+        return True
+    except OSError:
+        return False
+
+if not check_ffmpeg():
+    label_process['text'] = 'FFMPEG not found'
+else:
+    label_process['text'] = 'Status: Ready'
 
 
 #Create the webhook entry field
