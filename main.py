@@ -14,6 +14,8 @@ import os
 import subprocess
 import wmi
 import time
+import json
+
 window = Tk()
 
 
@@ -39,26 +41,31 @@ ASSETS_PATH = OUTPUT_PATH / Path(r"assets\frame0")
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
-#Populate the text field with the last Discord Webhook from output.txt
+# Populate the text field with the last Discord Webhook from output.json
 def populate():
     global content
-    with open("output.txt", "r") as f:
-        content = f.read()
-        webhook_entry.insert(END, content)
-        content = webhook_entry.get()
-        return content
+    try:
+        with open("output.json", "r") as f:
+            data = json.load(f)
+            content = data.get("webhook_url", "")
+    except FileNotFoundError:
+        content = ""
 
-#Save the Discord webhook to the file output.txt
+    webhook_entry.insert(END, content)
+    return content
+
+# Save the Discord webhook to the file output.json
 def update():
     global content
     content = webhook_entry.get()
-    with open('output.txt', 'w') as f:
-        f.write(content)
+    data = {"webhook_url": content}
+    with open('output.json', 'w') as f:
+        json.dump(data, f)
+    
     label_process['text'] = 'Discord Webhook Updated'
     label_process.update()
     time.sleep(2)
     label_process['text'] = 'Status: Ready'
-    content = webhook_entry.get()
     return content
 
 #Define Variables
@@ -85,7 +92,7 @@ def choose_save_location():
     video_name = os.path.basename(video_output)
     print(video_output)
 
-#Takes the encoded video file and sends it to Discord using the webhook provided.
+# Takes the encoded video file and sends it to Discord using the webhook provided.
 def send_file():
     global content, video_output
 
