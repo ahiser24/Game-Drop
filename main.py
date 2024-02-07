@@ -11,68 +11,28 @@ from tkinter import *
 from tkinter import filedialog, messagebox
 from discord_webhook import DiscordWebhook
 import os
-import platform
-if platform.system() != 'Linux':
-    import wmi
-    #create a WMI Object
-    wmi_obj = wmi.WMI()
 import subprocess
+import wmi
 import time
 window = Tk()
 
 
-#Identify GPU and OS
-def is_nvidia_gpu_present():
-    if platform.system() == "Windows":
-        wmi_obj = wmi.WMI()
-        nvidia_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%NVIDIA%'"
-        nvidia_result = wmi_obj.query(nvidia_query)
-        return len(nvidia_result) > 0
+#create a WMI Object
+wmi_obj = wmi.WMI()
 
-    elif platform.system() == "Linux":
-        lspci_output = subprocess.check_output("lspci", shell=True).decode()
-        return "NVIDIA" in lspci_output
+#Query for NVIDIA card
+nvidia_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%NVIDIA%'"
+nvidia_result = wmi_obj.query(nvidia_query)
 
-    return False
-
-def is_amd_gpu_present():
-    if platform.system() == "Windows":
-        wmi_obj = wmi.WMI()
-        amd_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%AMD%'"
-        amd_result = wmi_obj.query(amd_query)
-        return len(amd_result) > 0
-
-    elif platform.system() == "Linux":
-        lspci_output = subprocess.check_output("lspci", shell=True).decode()
-        return "AMD" in lspci_output
-
-    return False
-
-# Call the functions and assign the return values to variables
-nvidia_result = is_nvidia_gpu_present()
-amd_result = is_amd_gpu_present()
-
-# Use the values of nvidia_result and amd_result as needed
-if nvidia_result:
-    print("NVIDIA GPU is present")
-else:
-    print("NVIDIA GPU is not present")
-
-if amd_result:
-    print("AMD GPU is present")
-else:
-    print("AMD GPU is not present")
-
+#Query for AMD card
+amd_query = "SELECT * FROM Win32_VideoController WHERE AdapterCompatibility LIKE '%AMD%'"
+amd_result = wmi_obj.query(amd_query)
 
 
 
 #Set the Paths to be used
-if platform.system() == 'Linux':
-    OUTPUT_PATH = Path(__file__).parent
-    ASSETS_PATH = OUTPUT_PATH / Path(r"assets/frame0")
-else:
-    OUTPUT_PATH = Path(__file__).parent
-    ASSETS_PATH = OUTPUT_PATH / Path(r"assets\frame0")
+OUTPUT_PATH = Path(__file__).parent
+ASSETS_PATH = OUTPUT_PATH / Path(r"assets\frame0")
 
 
 #Get the initial path to the assets and images
@@ -108,7 +68,6 @@ video_name = ""
 nvidia = "h264_nvenc"
 amd = "h264_amf"
 cpu = "libvpx-vp9"
-
     
 
 
@@ -128,25 +87,52 @@ def choose_save_location():
 
 #Takes the encoded video file and sends it to Discord using the webhook provided.
 def send_file():
+    global content, video_output
+
     if not content:
         label_process['text'] = 'Completed'
         label_process.update()
         return
-    webhook = DiscordWebhook(url=content, username='Game Drop')
-#verify that the file size is smaller than 25MB (Discord limit)
-    file_size = os.path.getsize(video_output)
-    if file_size / 1024 > 25600:
-        messagebox.showerror('Error', 'File size is too large to send')
 
-    with open(video_output, 'rb') as f:
-        webhook.add_file(file=f.read(), filename=video_name)
-        response = webhook.execute()
-        label_process['text'] = 'Completed'
+    file_size = os.path.getsize(video_output)
+    
+    #Check if file is under 25MB limit
+    if file_size / 1024 > 25600:
+        label_process['text'] = 'Adjusting encoding...'
         label_process.update()
 
+        # Retry with a lower bitrate
+        subprocess.run([ffmpeg_path, '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1920:1080', '-an', '-b:v', '5000k', '-pass', '1', '-2pass', '1', video_output], shell=True)
+        subprocess.run([ffmpeg_path, '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '5000k', '-pass', '2', '-2pass', '1', '-y', video_output], shell=True)
+        
+        file_size = os.path.getsize(video_output)
 
-#Call PowerShell script for FFMPEG conversion and update the status label
+        if file_size / 1024 > 25600:
+            # If adjusted encoding fails, don't send.
+            messagebox.showerror('Error', 'Adjusted file size is still too large to send')
+            label_process['text'] = 'Adjustment failed'
+        else:
+            # Successfully adjusted encoding
+            with open(video_output, 'rb') as f:
+                webhook = DiscordWebhook(url=content, username='Game Drop')
+                webhook.add_file(file=f.read(), filename=video_name)
+                response = webhook.execute()
+                label_process['text'] = 'Completed'
+
+    else:
+        # File size is within the limit, send as is
+        with open(video_output, 'rb') as f:
+            webhook = DiscordWebhook(url=content, username='Game Drop')
+            webhook.add_file(file=f.read(), filename=video_name)
+            response = webhook.execute()
+            label_process['text'] = 'Completed'
+
+
+
+# Call PowerShell script for FFMPEG conversion and update the status label
 def run_ffmpeg():
+    #Declare a global variable for the ffmpeg path
+    global ffmpeg_path
     label_process['text'] = 'Encoding. Please wait...'
     label_process.update()
     button_dropit.config(relief='sunken')
@@ -156,87 +142,41 @@ def run_ffmpeg():
         label_process['text'] = 'Status: Ready'
         return
     else:
+        ffmpeg_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Bin', 'FFMPEG', 'ffmpeg.exe')  # Add this line
         option_selected()
         button_dropit.config(relief='flat')
         label_process['text'] = 'Status: Ready'
 
 
-
-
-#Drop Down Menu actions for Encoder
+# Drop Down Menu actions for Encoder
 def option_selected():
-    global video_input
-    video_input_escaped = '"' + video_input + '"'
-    video_output_escaped = '"' + video_output + '"'
-    global value
+    global value, video_input, video_output, video_name, content, ffmpeg_path
+
     value = var.get()
-    if value == "NVIDIA":
-        #Check if NVIDIA graphics is detected
-        if not nvidia_result:
-            label_process['text'] = 'NVIDIA GPU not detected'
-            label_process.update()
-            time.sleep(2)
-            return #Stop the script
-        
-        # Command to run using pwsh
-        command_pass1 = [
-            'ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input_escaped ,
-            '-c:v', nvidia, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1',
-            '-2pass', '-1', video_output_escaped
-        ]
-        command_pass2 = [
-            'ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input_escaped ,
-            '-c:v', nvidia, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k',
-            '-pass', '2', '-2pass', '-1', '-y', video_output_escaped
-        ]
-        # Run Pass 1 using pwsh
-        subprocess.run(['pwsh', '-Command', ' '.join(command_pass1)])
-        # Run Pass 2 using pwsh
-        subprocess.run(['pwsh', '-Command', ' '.join(command_pass2)])
-        send_file()
+    ffmpeg_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Bin', 'FFMPEG', 'ffmpeg.exe')
 
-    elif value == "AMD":
-        #Check if AMD graphics is detected
-        if not amd_result:
-                label_process['text'] = 'AMD GPU not detected'
-                label_process.update()
-                time.sleep(2)
-                return #Stop the script
+    gpu_checks = {
+        "NVIDIA": (nvidia_result, "NVIDIA GPU not detected", nvidia, nvidia),
+        "AMD": (amd_result, "AMD GPU not detected", amd, amd),
+        "CPU": (None, None, cpu, cpu)
+    }
 
-        # Command to run using pwsh
-        command_pass1 = [
-            'ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input_escaped ,
-            '-c:v', amd, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1',
-            '-2pass', '-1', video_output_escaped
-        ]
-        command_pass2 = [
-            'ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input_escaped ,
-            '-c:v', amd, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k',
-            '-pass', '2', '-2pass', '-1', '-y', video_output_escaped
-        ]
-        # Run Pass 1 using pwsh
-        subprocess.run(['pwsh', '-Command', ' '.join(command_pass1)])
-        # Run Pass 2 using pwsh
-        subprocess.run(['pwsh', '-Command', ' '.join(command_pass2)])
-        send_file()
+    gpu_check, gpu_not_detected_msg, pass_1_encoder, pass_2_encoder = gpu_checks.get(value, (None, None, None, None))
 
-    else:
-        # Command to run using pwsh
-        command_pass1 = [
-            'ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input_escaped ,
-            '-c:v', cpu, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1',
-            '-2pass', '-1', video_output_escaped
-        ]
-        command_pass2 = [
-            'ffmpeg', '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input_escaped ,
-            '-c:v', cpu, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k',
-            '-pass', '2', '-2pass', '-1', '-y', video_output_escaped
-        ]
-        # Run Pass 1 using pwsh
-        subprocess.run(['pwsh', '-Command', ' '.join(command_pass1)])
-        # Run Pass 2 using pwsh
-        subprocess.run(['pwsh', '-Command', ' '.join(command_pass2)])
-        send_file()
+    if gpu_check is not None and not gpu_check:
+        label_process['text'] = gpu_not_detected_msg
+        label_process.update()
+        time.sleep(2)
+        return  # Stop the script
+
+    # Pass 1
+    subprocess.run([ffmpeg_path, '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input,
+                    '-c:v', pass_1_encoder, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
+    # Pass 2
+    subprocess.run([ffmpeg_path, '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input,
+                    '-c:v', pass_2_encoder, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+    send_file()
+
 
 
 
@@ -349,10 +289,14 @@ global label_process
 label_process = Label(window, text="Status: Ready", fg="#010101", font=("Inter Bold", 12))
 label_process.place(x=100, y=380)
 
-#Check if FFMPEG is installed
+# Check if FFMPEG is installed
 def check_ffmpeg():
+    global ffmpeg_path
+
+    ffmpeg_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Bin', 'FFMPEG', 'ffmpeg.exe')
+
     try:
-        subprocess.check_output(['ffmpeg', '-version'])
+        subprocess.check_output([ffmpeg_path, '-version'])
         return True
     except OSError:
         return False
@@ -361,6 +305,8 @@ if not check_ffmpeg():
     label_process['text'] = 'FFMPEG not found'
 else:
     label_process['text'] = 'Status: Ready'
+
+
 
 
 #Create the webhook entry field
