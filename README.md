@@ -26,7 +26,7 @@ In Version 1.65, the following changes have been made:
 * Included FFMPEG to make installation easier.
 
 * Bug fixes
-**Adjusted encoding to change bitrate if the file size becomes too large.**
+* **Adjusted encoding to change bitrate if the file size becomes too large.**
 
 ### Wishlist Features
 * Setup a cleaner and more modern GUI
@@ -48,11 +48,6 @@ In Version 1.65, the following changes have been made:
 * If the user would like to share directly to a Discord channel they will need to specify a webhook that is linked to that channel. See: [Creating a Discord Webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) for more details.
 * A call is made to FFMPEG to take the last 30 seconds of the video and lower the bitrate to make the file size under 8MB in size.
 * The new file is then sent through a Discord webhook directly to the Discord channel so users can instantly view the video.
-
-## Prerequisites
-#### Windows
-- FFMPEG - Install from ffmpeg.org or use the Installation file located in the installation directory's Bin folder. 
-  - Ex: ""%localappdata%\TekRexIT\Game Drop\Bin\FFMPEG Installer.exe"\FFMPEG Installer.exe"
  
 
 ## How To Use
@@ -64,5 +59,3 @@ In Version 1.65, the following changes have been made:
 * **Update** = Click this button to register the Discord Webhook.
 * **Drop It** = Encode the video and send it to the Discord channel if entered.
 
-## FAQ
-* If a message says **FFMPeg not found**, please install FFMpeg by following the prerequisites section. A reboot may be required for your system to recognize the FFMPEG installation.
