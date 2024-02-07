@@ -20,17 +20,20 @@ https://youtu.be/poZYv02dMxg
 This is my first real hobby project and it's been great learning to code along the way. This started out as a PowerShell program and has evolved into a Python application. I have more updates and ideas to enhance this tool coming soon, but I wanted to get it in the hands of my friends and anyone else interested as soon as possible. While there are plenty of other tools similar to this, I couldn't find any that would directly send the video to Discord when it was done. Feel free to adjust it to your liking.
 
 ### What's New
-In Version 1.6, the following changes have been made:
-* Linux compatibility (BETA)
-* Please report any issues or concerns in our Discord: https://discord.gg/HXeqYMYqKZ
+In Version 1.65, the following changes have been made:
+* Removed Linux options. Will try to add that in a later update.
+* Optimized the code
+* Included FFMPEG to make installation easier.
 
-### Upcoming features
-* Setup a cleaner modern GUI
+* Bug fixes
+**Adjusted encoding to change bitrate if the file size becomes too large.**
+
+### Wishlist Features
+* Setup a cleaner and more modern GUI
 * Auto select GPU/CPU to encode.
-* File size selector. 8MB, 50MB, 100MB
+* File size selector. 25MB, 50MB, 100MB
 * Custom video length
 * Choose from multiple Discord channels to send to.
-* and more...
 
 
 ## Why Game Drop?
@@ -51,16 +54,6 @@ In Version 1.6, the following changes have been made:
 - FFMPEG - Install from ffmpeg.org or use the Installation file located in the installation directory's Bin folder. 
   - Ex: ""%localappdata%\TekRexIT\Game Drop\Bin\FFMPEG Installer.exe"\FFMPEG Installer.exe"
  
-#### Linux
-- Ubuntu and Debian
-  - sudo apt-get update
-  - sudo apt-get install ffmpeg
-
-- CentOS and Fedora
-   - sudo dnf install ffmpeg
-
-- Arch Linux and Manjaro
-  - sudo pacman -Sy ffmpeg
 
 ## How To Use
 * **Run** "Game Drop.exe"
