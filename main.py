@@ -1,6 +1,5 @@
-#Game Drop is used to quickly share 30 second gaming clips with friends on Discord.
-#As the file also gets saved to the output folder, it can easily be shared
-#with other chat programs that have <25MB size limits.
+# Game Drop is used to quickly share 30 second gaming clips with friends on Discord.
+# A local copy is saved to the inputs folder
 
 
 
@@ -70,38 +69,44 @@ def update():
 
 #Define Variables
 video_input = ""
-video_output = ""
+save_location = ""
 video_name = ""
 nvidia = "h264_nvenc"
 amd = "h264_amf"
 cpu = "libvpx-vp9"
-    
 
 
 #Choose video file for input buttton
 def choose_video():
     global video_input
     video_input = filedialog.askopenfilename(title = "Select video", filetypes = (("MP4 files", "*.mp4"),("All files", "*.*")))
+    determine_save_location
     print(video_input)
 
-#Choose where to save the encoded video
-def choose_save_location():
-    global video_output
-    global video_name
-    video_output = filedialog.asksaveasfilename(title = "Save video", filetypes = (("MP4 files", "*.mp4"), ("All files", "*.*")), defaultextension='.mp4')
-    video_name = os.path.basename(video_output)
-    print(video_output)
+#Set the save location to the same folder as the video input
+def determine_save_location():
+    global save_location, video_name  # Indicate these are global
+
+    if video_input:
+        original_dir = os.path.dirname(video_input)
+        default_filename = os.path.basename(video_input).split('.')[0] + "_converted.mp4"
+        save_location = os.path.join(original_dir, default_filename)
+        video_name = os.path.basename(save_location)
+
+    else:
+        # Since there's no choice possible, handle this situation directly
+        messagebox.showerror('Error', 'Please select an input video first.')
 
 # Takes the encoded video file and sends it to Discord using the webhook provided.
 def send_file():
-    global content, video_output
+    global content, save_location
 
     if not content:
         label_process['text'] = 'Completed'
         label_process.update()
         return
 
-    file_size = os.path.getsize(video_output)
+    file_size = os.path.getsize(save_location)
     
     #Check if file is under 25MB limit
     if file_size / 1024 > 25600:
@@ -109,10 +114,10 @@ def send_file():
         label_process.update()
 
         # Retry with a lower bitrate
-        subprocess.run([ffmpeg_path, '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1920:1080', '-an', '-b:v', '5000k', '-pass', '1', '-2pass', '1', video_output], shell=True)
-        subprocess.run([ffmpeg_path, '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '5000k', '-pass', '2', '-2pass', '1', '-y', video_output], shell=True)
+        subprocess.run([ffmpeg_path, '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1920:1080', '-an', '-b:v', '5000k', '-pass', '1', '-2pass', '1', save_location], shell=True)
+        subprocess.run([ffmpeg_path, '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input, '-c:v', nvidia, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '5000k', '-pass', '2', '-2pass', '1', '-y', save_location], shell=True)
         
-        file_size = os.path.getsize(video_output)
+        file_size = os.path.getsize(save_location)
 
         if file_size / 1024 > 25600:
             # If adjusted encoding fails, don't send.
@@ -120,7 +125,7 @@ def send_file():
             label_process['text'] = 'Adjustment failed'
         else:
             # Successfully adjusted encoding
-            with open(video_output, 'rb') as f:
+            with open(save_location, 'rb') as f:
                 webhook = DiscordWebhook(url=content, username='Game Drop')
                 webhook.add_file(file=f.read(), filename=video_name)
                 response = webhook.execute()
@@ -128,7 +133,7 @@ def send_file():
 
     else:
         # File size is within the limit, send as is
-        with open(video_output, 'rb') as f:
+        with open(save_location, 'rb') as f:
             webhook = DiscordWebhook(url=content, username='Game Drop')
             webhook.add_file(file=f.read(), filename=video_name)
             response = webhook.execute()
@@ -143,21 +148,22 @@ def run_ffmpeg():
     label_process['text'] = 'Encoding. Please wait...'
     label_process.update()
     button_dropit.config(relief='sunken')
-    if not video_input or not video_output:
-        messagebox.showerror('Error', 'Input and/or output files are not selected')
+    if not video_input:
+        messagebox.showerror('Error', 'No Video file selected')
         button_dropit.config(relief='flat')
         label_process['text'] = 'Status: Ready'
         return
     else:
         ffmpeg_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Bin', 'FFMPEG', 'ffmpeg.exe')  # Add this line
-        option_selected()
+        determine_save_location()
+        option_selected(save_location)
         button_dropit.config(relief='flat')
         label_process['text'] = 'Status: Ready'
 
 
 # Drop Down Menu actions for Encoder
-def option_selected():
-    global value, video_input, video_output, video_name, content, ffmpeg_path
+def option_selected(save_location):
+    global value, video_input, video_name, content, ffmpeg_path
 
     value = var.get()
     ffmpeg_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Bin', 'FFMPEG', 'ffmpeg.exe')
@@ -178,10 +184,10 @@ def option_selected():
 
     # Pass 1
     subprocess.run([ffmpeg_path, '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input,
-                    '-c:v', pass_1_encoder, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1', '-2pass', '-1', video_output], shell=True)
+                    '-c:v', pass_1_encoder, '-vf', 'scale=1920:1080', '-an', '-b:v', '6000k', '-pass', '1', '-2pass', '-1', save_location], shell=True)
     # Pass 2
     subprocess.run([ffmpeg_path, '-y', '-loglevel', '0', '-nostats', '-sseof', '-30', '-i', video_input,
-                    '-c:v', pass_2_encoder, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k', '-pass', '2', '-2pass', '-1', '-y', video_output], shell=True)
+                    '-c:v', pass_2_encoder, '-vf', 'scale=1920:1080', '-acodec', 'copy', '-b:v', '6000k', '-pass', '2', '-2pass', '-1', '-y', save_location], shell=True)
     send_file()
 
 
@@ -236,22 +242,6 @@ rectangle = canvas.create_image(
     image=image_rectangle
 )
 
-#Output button
-button_image_output = PhotoImage(
-    file=relative_to_assets("output.png"))
-button_output = Button(
-    image=button_image_output,
-    borderwidth=0,
-    highlightthickness=0,
-    command=choose_save_location,
-    relief="flat"
-)
-button_output.place(
-    x=64.0,
-    y=160.0,
-    width=174.0,
-    height=36.0
-)
 
 
 #create encoder option menu
@@ -268,7 +258,7 @@ def callback(*args):
 var.trace("w", callback)
 option.place(
     x=64.0,
-    y=220.0,
+    y=202.0,
     width=174.0,
     height=36.0
 )
@@ -339,29 +329,29 @@ button_input = Button(
 )
 button_input.place(
     x=64.0,
-    y=100.0,
+    y=142.0,
     width=174.0,
     height=36.0
 )
 
 #Text for Discord Webhook
 canvas.create_text(
-    104.0,
-    321.0,
+    100.0,
+    317.0,
     anchor="nw",
     text="Discord Webhook",
     fill="#010101",
-    font=("Inter Bold", 12 * -1)
+    font=("Inter", 10, "bold")
 )
 
 #Text for Select Encoder
 canvas.create_text(
-    104.0,
-    260.0,
+    100.0,
+    238.0,
     anchor="nw",
     text="Select Encoder",
     fill="#010101",
-    font=("Inter Bold", 12 * -1)
+    font=("Inter", 10, "bold")
 )
 
 #Create the Update button
