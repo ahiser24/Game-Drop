@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/ahiser24/Game-Drop/blob/main/assets/frame0/screenshot.png?raw=true" alt="Logo" width="50%" height="50%"/>
+  <img src="https://github.com/ahiser24/Game-Drop/blob/main/assets/frame0/Screenshot.png?raw=true" alt="Logo" width="50%" height="50%"/>
 </p>
 
 ###
@@ -52,10 +52,9 @@ In Version 1.65, the following changes have been made:
 
 ## How To Use
 * **Run** "Game Drop.exe"
-* **Input** = Select the video you want to share.
-* **Output** = Where would you like the encoded video to be saved?
+* **Select Video** = Select the video you want to share.
 * **Select Encoder** = Choose which graphics card you have or use CPU if you don't have one.
 * **Discord Webhook** = Enter the webhook for the Discord channel you want to send the video to. See: [Creating a Discord Webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) for more details.
-* **Update** = Click this button to register the Discord Webhook.
+* **Save** = Click this button to register the Discord Webhook.
 * **Drop It** = Encode the video and send it to the Discord channel if entered.
 
