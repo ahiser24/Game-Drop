@@ -14,13 +14,15 @@ In short, it allows you to:
 * Automatically sends the video to your favorite Discord channel upon conversion. Set it and forget it.
 
 ### How To Video
-https://youtu.be/poZYv02dMxg
+https://youtu.be/8drrtZ-qybc?si=hEAR5JGZNLRfrpTz
 
 ### Newbie Alert
 This is my first real hobby project and it's been great learning to code along the way. This started out as a PowerShell program and has evolved into a Python application. I have more updates and ideas to enhance this tool coming soon, but I wanted to get it in the hands of my friends and anyone else interested as soon as possible. While there are plenty of other tools similar to this, I couldn't find any that would directly send the video to Discord when it was done. Feel free to adjust it to your liking.
 
 ### What's New
-In Version 1.65, the following changes have been made:
+In Version 1.66, the following changes have been made:
+
+* Simplified the process and removed output selection. Encoded videos will be stored in the same folder as the input and "_converted" will be appended to its name.
 * Removed Linux options. Will try to add that in a later update.
 * Optimized the code
 * Included FFMPEG to make installation easier.
