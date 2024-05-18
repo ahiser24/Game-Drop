@@ -2,11 +2,11 @@
   <img src="https://github.com/ahiser24/Game-Drop/blob/main/assets/frame0/Screenshot.png?raw=true" alt="Logo" width="50%" height="50%"/>
 </p>
 
+### <a href="https://github.com/ahiser24/Game-Drop/releases/latest" style="background-color: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">Download Now</a>
+
 ###
 ![GitHub all releases](https://img.shields.io/github/downloads/ahiser24/game-drop/total?logo=Github)
 
-###
-![Download the Latest Version]((https://github.com/ahiser24/Game-Drop/releases/latest))
 
 ## Overview
 Introducing Game Drop: the ultimate companion for passionate gamers seeking to amplify their gameplay highlights! Crafted with gamers in mind, Game Drop offers a seamless platform to effortlessly curate and share adrenaline-pumping moments with friends and communities.
