@@ -5,6 +5,9 @@
 ###
 ![GitHub all releases](https://img.shields.io/github/downloads/ahiser24/game-drop/total?logo=Github)
 
+###
+![Download the Latest Version]((https://github.com/ahiser24/Game-Drop/releases/latest))
+
 ## Overview
 Introducing Game Drop: the ultimate companion for passionate gamers seeking to amplify their gameplay highlights! Crafted with gamers in mind, Game Drop offers a seamless platform to effortlessly curate and share adrenaline-pumping moments with friends and communities.
 
